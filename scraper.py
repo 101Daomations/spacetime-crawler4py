@@ -35,42 +35,61 @@ stopWords = {"a", "about", "above", "after", "again", "against", "all", "am", "a
              "through", "to", "too", "under", "until", "up", "very", "was", "wasn't", "we", "we'd", "we'll", "we're",
              "we've","were","weren't","what","what's","when","when's","where","where's","which","while","who","who's",
              "whom","why","why's","with", "won't","would","wouldn't","you","you'd","you'll","you're","you've","your",
-             "yours","yourself", "yourselves"}
+             "yours","yourself", "yourselves",
+             "for", "use", "our", "meet", "can", "also", "be", "na", "using", "will", "many", "based", "new", "title",
+             "show", "may", "says", "reply", "read"}
 
 
-
+#finds the next links to be scraped
 def scraper(url, resp):
+    #get next links
     links = extract_next_links(url, resp)
-    returned = [link for link in links if is_valid(link)]
+    #update the answer document with info from the current url being scraped
     createAnswerDoc()
-    return returned
+    return links
 
 
 def extract_next_links(url, resp):
-    #set of links found
-    linksFound = set()
+    try:
+        #set of links found
+        #used set to avoid dupliates
+        linksFound = set()
+        
+        #check if url is valid
+        if is_valid(url):
 
-    #check if link can be crawled
-    if checkCrawl(resp) and is_valid(url):
-        #answer questions 1-4
-        answerQuestions(url)
+            #Get a dictionary of all the tokens in the current url
+            #Only returns a dictionary if the url has more than 200 tokens (excluding stopwords)
+            #returns False otherwise
+            tokens = goodText(url)
 
-        #scrape the url for atags (links)
-        soup = BeautifulSoup(requests.get(url).content, "html.parser")
-        for link in soup.findAll("a"):
-            href = link.get("href")
+            #check if link can be crawled, and has good amount of text, hence type(tokens) == dict
+            if checkCrawl(resp) and (type(tokens) == dict):
+                #answer questions 1-4
+                answerQuestions(url, tokens)
 
-            #defragment href
-            href = urllib.parse.urljoin(url, href, allow_fragments=False)
-            #check if link is valid
-            if is_valid(href):
-                linksFound.add(href)
+                #scrape the url for atags (links)
+                soup = BeautifulSoup(requests.get(url).content, "html.parser")
+                for link in soup.findAll("a"):
+                    href = link.get("href")
 
-        return list(linksFound)
+                    #defragment href
+                    href = urllib.parse.urljoin(url, href, allow_fragments=False)
+                    href = defragment(href)
 
-    return []
+                    #check if link found is valid before adding it 
+                    if is_valid(href):
+                        linksFound.add(href)
+
+                return list(linksFound)
+
+        return []
+    
+    except:
+        return []
 
 
+#Check to see if url is valid
 def is_valid(url):
     try:
         parsed = urlparse(url)
@@ -87,30 +106,29 @@ def is_valid(url):
             + r"|epub|dll|cnf|tgz|sha1"
             + r"|thmx|mso|arff|rtf|jar|csv"
             + r"|rm|smil|wmv|swf|wma|zip|rar|gz|txt|jpg|img"
-            + r"|calendar|events|event|py|)$", parsed.path.lower()):
+            + r"|calendar|events|event|py|mpg|odc|ppsx|pps|ff|ps|Z|z|r)$", parsed.path.lower()):
             return False
 
+        #checks to see if url is a trap
+        if trap(url):
+            return False
+            
         # Check to see if its has the right domain
         if not isValidDomain(url):
-            return False
-
-        #Check to see if url is too long
-        if len(url) > 325:
             return False
 
         #Check to see if url has been visited before
         if not isUnique(url):
             return False
 
-        #Check to see if url has a good amount of content
-        if not goodText(url):
+        #filter out social media share links and page ids
+        if social(url):
             return False
-
 
         return True
     except TypeError:
-            print ("TypeError for ", parsed)
-            raise
+        print ("TypeError for ", parsed)
+        raise
 
 
 
@@ -118,20 +136,46 @@ def is_valid(url):
 
 #checks if the url is of the right domain
 def isValidDomain(url):
+    #removed today.uci.edu/...
     domains = ["ics.uci.edu",
                "cs.uci.edu",
                "informatics.uci.edu",
-               "stat.uci.edu",
-               "today.uci.edu/department/information_computer_sciences"]
-
+               "stat.uci.edu"]
+    
+    #empty url
     if not url:
         return False
-    #loop through domains given
 
+    #check for urls such as physICS.uci, economICS.uci...
+    if not isICS(url):
+        return False
+
+    #loop through domains given
     for d in domains:
         if d in url:
             return True
     return False
+
+
+#checks to see if its a trap
+def trap(url):
+    #trap urls that we've ran into
+    trapURL = ["~eppstein/junkyard", "mt-live", "/event", "/events", "ics.uci.edu/ugrad/honors/index",
+               "evoke.ics.uci.edu/qs-personal-data-landscapes-poster", "archive.ics.uci.edu",
+               "flamingo.ics.uci.edu/localsearch/fuzzysearch", "/pdf", "grape.ics.uci.edu"]
+
+    #repeating directories
+    if re.match("^.*?(/.+?/).*?\1.*$|^.*?/(.+?/)\2.*$", url):
+        return True
+    
+    #check to see if url is apart of a blacklisted url
+    for t in trapURL:
+        if t in url:
+            return True
+
+    #Check to see if url is too long
+    if len(url) > 150:
+        return True
 
 
 #removes the fragment from a url if it has it
@@ -140,6 +184,13 @@ def defragment(url):
         index = url.find("#")
         return url[:index]
     return url
+
+
+#checks to see if the link is for sharing to a social media or page id
+def social(url):
+    if "?" in url:
+        return True
+    return False
 
 
 #checks to see if url has been visted before
@@ -161,10 +212,8 @@ def goodText(url):
     tokens = tokenize(url)
     count = sum(list(tokens.values()))
 
-    #https://whiteboard-mktg.com/how-much-content-is-good-for-seo-rankings/
-    #based on forbes any website with less than 300 words per page is considered "thin"
-    if count > 300:
-        return True
+    if count > 200:
+        return tokens
     return False
 
 
@@ -178,7 +227,7 @@ def tokenize(url):
     text = soup.get_text(separator=' ', strip=True)
 
     #remove all non alphanumeric characters
-    text = re.sub('[^A-Za-z0-9]+', ' ', text)
+    text = re.sub('[^A-Za-z]+', ' ', text)
 
     #lowercase all characters
     text = text.lower()
@@ -197,8 +246,17 @@ def tokenize(url):
     return tokens
 
 
+#Detect non-ics, "physICS, economICS..."
+def isICS(url):
+    if "ics.uci.edu" in url:
+        index = url.find("ics.uci.edu")
+        if (url[index-1]).isalpha():
+            return False
+    return True
+
+
 #update the global variables to answer questions 1-4
-def answerQuestions(url):
+def answerQuestions(url, tokens):
     global uniqueUrl
     global longestPage
     global mostCommon
@@ -211,7 +269,6 @@ def answerQuestions(url):
 
 
     #Question 2 - Longest url
-    tokens = tokenize(url)
     count = sum(list(tokens.values()))
     if count > longestPage[1]:
         longestPage = [defragmentURL, count]
@@ -225,11 +282,14 @@ def answerQuestions(url):
             mostCommon[token] = tokens[token]
 
     #Queston 4 - Count ics.uci.edu subdomains
-    if "ics.uci.edu" in url:
-        if defragmentURL in subDomain:
-            subDomain[defragmentURL] += 1
+    #get parsed url object to get subdomain
+    parsed = urlparse(defragmentURL)
+    
+    if ("ics.uci.edu" in parsed.hostname) and (isICS(url)):
+        if parsed.hostname in subDomain:
+            subDomain[parsed.hostname] += 1
         else:
-            subDomain[defragmentURL] = 1
+            subDomain[parsed.hostname] = 1
 
 
 #write answers for the 4 questions into a text file
@@ -251,7 +311,7 @@ def createAnswerDoc():
         file.write("\n")
         file.write(f"Subdomains: \n")
         for subdomain, freq in sorted(subDomain.items(),key=lambda x:x[0]):
-            file.write(f"{subdomain}, {freq}\n")
+            file.write(f"http://{subdomain}, {freq}\n")
         file.write(f"===============================")
         file.close()
     except:
