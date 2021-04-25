@@ -54,6 +54,9 @@ def extract_next_links(url, resp):
         #set of links found
         #used set to avoid dupliates
         linksFound = set()
+
+        if repeatingDirect(url):
+            print("true\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n")
         
         #check if url is valid
         if is_valid(url):
@@ -109,6 +112,9 @@ def is_valid(url):
             + r"|calendar|events|event|py|mpg|odc|ppsx|pps|ff|ps|Z|z|r)$", parsed.path.lower()):
             return False
 
+        #if repeatingDirect(url):
+        #    return False
+            
         #checks to see if url is a trap
         if trap(url):
             return False
@@ -146,7 +152,7 @@ def isValidDomain(url):
     if not url:
         return False
 
-    #check for urls such as physICS.uci, economICS.uci...
+    #check for urls such as physICS.uci, economICS.uci... but include informatics
     if not isICS(url):
         return False
 
@@ -160,9 +166,9 @@ def isValidDomain(url):
 #checks to see if its a trap
 def trap(url):
     #trap urls that we've ran into
-    trapURL = ["~eppstein/junkyard", "mt-live", "/event", "/events", "ics.uci.edu/ugrad/honors/index",
-               "evoke.ics.uci.edu/qs-personal-data-landscapes-poster", "archive.ics.uci.edu",
-               "flamingo.ics.uci.edu/localsearch/fuzzysearch", "/pdf", "grape.ics.uci.edu"]
+    trapURL = ["~eppstein/junkyard", "mt-live", "/event", "/events", "ics.uci.edu/ugrad/honors/index", 
+               "www.ics.uci.edu/honors","evoke.ics.uci.edu/qs-personal-data-landscapes-poster", "archive.ics.uci.edu",
+               "flamingo.ics.uci.edu/localsearch/fuzzysearch", "/pdf", "grape.ics.uci.edu", "zImage_paapi"]
 
     #repeating directories
     if re.match("^.*?(/.+?/).*?\1.*$|^.*?/(.+?/)\2.*$", url):
@@ -177,6 +183,26 @@ def trap(url):
     if len(url) > 150:
         return True
 
+#repeating directs
+def repeatingDirect(url):
+    parse = urlparse(url)
+    path = parse.path
+
+    pathList = path.split("/")
+
+    for i in pathList.copy():
+        if i == "":
+            pathList.remove("")
+
+    for i in pathList.copy():
+        if not i.isalpha():
+            path.remove(i)
+
+    for direct in pathList:
+        if (pathList).count(direct) > 1:
+            return True
+
+    return False
 
 #removes the fragment from a url if it has it
 def defragment(url):
@@ -245,9 +271,18 @@ def tokenize(url):
 
     return tokens
 
-
-#Detect non-ics, "physICS, economICS..."
+#Detect non-ics, "physICS, economICS... but include informatics"
 def isICS(url):
+    if "informatics.uci.edu" in url:
+        return True
+    if "ics.uci.edu" in url:
+        index = url.find("ics.uci.edu")
+        if (url[index-1]).isalpha():
+            return False
+    return True
+    
+#Detect non-ics, "physICS, economICS..."
+def isICS2(url):
     if "ics.uci.edu" in url:
         index = url.find("ics.uci.edu")
         if (url[index-1]).isalpha():
@@ -285,7 +320,7 @@ def answerQuestions(url, tokens):
     #get parsed url object to get subdomain
     parsed = urlparse(defragmentURL)
     
-    if ("ics.uci.edu" in parsed.hostname) and (isICS(url)):
+    if ("ics.uci.edu" in parsed.hostname) and (isICS2(url)):
         if parsed.hostname in subDomain:
             subDomain[parsed.hostname] += 1
         else:
