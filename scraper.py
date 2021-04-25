@@ -49,14 +49,12 @@ def scraper(url, resp):
     return links
 
 
+#Returns a list of the links found in the current url
 def extract_next_links(url, resp):
     try:
         #set of links found
         #used set to avoid dupliates
         linksFound = set()
-
-        if repeatingDirect(url):
-            print("true\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n")
         
         #check if url is valid
         if is_valid(url):
@@ -112,8 +110,10 @@ def is_valid(url):
             + r"|calendar|events|event|py|mpg|odc|ppsx|pps|ff|ps|Z|z|r)$", parsed.path.lower()):
             return False
 
-        #if repeatingDirect(url):
-        #    return False
+        #checks to see if there is a repeating directory
+        #ex: ics.uci.edu/honors/policies/policies/
+        if repeatingDirect(url):
+            return False
             
         #checks to see if url is a trap
         if trap(url):
@@ -131,6 +131,7 @@ def is_valid(url):
         if social(url):
             return False
 
+        #if no errors were raised return True
         return True
     except TypeError:
         print ("TypeError for ", parsed)
@@ -185,30 +186,44 @@ def trap(url):
 
 #repeating directs
 def repeatingDirect(url):
+    #get just the path of the url
     parse = urlparse(url)
     path = parse.path
 
+    #split the path by "/" into a list
     pathList = path.split("/")
 
+    #remove empty strings from the list 
+    #gotten from paths such as /hello//directory/
     for i in pathList.copy():
         if i == "":
             pathList.remove("")
 
+    #remove numbers from the list 
+    #accounts for dates such as /2020/04/04
     for i in pathList.copy():
         if not i.isalpha():
             path.remove(i)
 
+    #loop through the paths
     for direct in pathList:
+        #if a path shows up more than once its repeating, hence a trap
         if (pathList).count(direct) > 1:
             return True
 
+    #returns false otherwise
     return False
 
 #removes the fragment from a url if it has it
 def defragment(url):
+    #checks to see if fragment exists
     if "#" in url:
+        #find index of fragment
         index = url.find("#")
+        
+        #return the url from start to fragment
         return url[:index]
+    #return url if no fragment found
     return url
 
 
@@ -228,6 +243,7 @@ def isUnique(url):
 
 #check if link can be crawled
 def checkCrawl(resp):
+    #checks to see if response status is good and not empty
     if (resp.status >= 200 and resp.status <= 299) and resp.raw_response:
         return True
     return False
@@ -235,9 +251,15 @@ def checkCrawl(resp):
 
 #check to see if the page has good amount of text
 def goodText(url):
+    #tokenizes the url
     tokens = tokenize(url)
+    
+    #counts up the total amount of all the tokens excluding stop words
     count = sum(list(tokens.values()))
 
+    #Returns the dictionary of tokens if url has good amount of text, false otherwise
+    #This is done to make the program more efficient as we would only have to tokenize once
+    #rather than twice in goodText() and answerQuestions() in extract_next_links()
     if count > 200:
         return tokens
     return False
@@ -263,28 +285,44 @@ def tokenize(url):
 
     #remove stop words and add it token dict
     for token in tokenList:
+        #if token isnt a stop word and is at least 2 letters long
         if token not in stopWords and len(token) >= 2:
+            #if token not in dictionary, add it
             if token not in tokens:
                 tokens[token] = 1
+            #increment token dictionary
             else:
                 tokens[token] += 1
 
     return tokens
 
+  
 #Detect non-ics, "physICS, economICS... but include informatics"
+#used in fucntions where we want to detect validity
 def isICS(url):
     if "informatics.uci.edu" in url:
         return True
+    
+    #if ics.uci.edu is in url check if theres a character before the "i"
     if "ics.uci.edu" in url:
+        #get the index of "ics.uci.edu" 
         index = url.find("ics.uci.edu")
+        #if the value before the i in ics is a char then its invalid
+        #ex: phy'S'ics, econo'M'ics but urls like www'.'ics.uci.edu are good
         if (url[index-1]).isalpha():
             return False
     return True
     
 #Detect non-ics, "physICS, economICS..."
+#used in functions where we want to check for JUST "ics.uci.edu" 
+#link in answerQuestions(), question 4
 def isICS2(url):
+    #if ics.uci.edu is in url check if theres a character before the "i"
     if "ics.uci.edu" in url:
+        #get the index of "ics.uci.edu" 
         index = url.find("ics.uci.edu")
+        #if the value before the i in ics is a char then its invalid
+        #ex: phy'S'ics, econo'M'ics but urls like www'.'ics.uci.edu are good
         if (url[index-1]).isalpha():
             return False
     return True
