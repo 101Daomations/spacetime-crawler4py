@@ -1,0 +1,115 @@
+===============================
+Number of Unique URLs: 3821
+
+Longest Page & Number of Words: http://emj.ics.uci.edu/wp-content/uploads/MjolsnessCunhaPMAV24Oct2012 , 55141 
+
+Most Common Words: 
+<research> - <25337>
+<computer> - <16828>
+<student> - <16052>
+<software> - <15089>
+<information> - <13831>
+<uci> - <13006>
+<engineering> - <11680>
+<informatics> - <11657>
+<students> - <11566>
+<graduate> - <11090>
+<undergraduate> - <10683>
+<science> - <10483>
+<ics> - <10206>
+<data> - <10113>
+<april> - <9408>
+<policies> - <9182>
+<department> - <9124>
+<news> - <8969>
+<march> - <8805>
+<ph> - <8792>
+<design> - <8522>
+<markellekelly> - <8487>
+<school> - <7856>
+<support> - <7677>
+<course> - <7649>
+<january> - <7461>
+<february> - <7317>
+<bren> - <7265>
+<june> - <7218>
+<november> - <7202>
+<september> - <7130>
+<university> - <7090>
+<july> - <6928>
+<august> - <6893>
+<december> - <6866>
+<projects> - <6843>
+<people> - <6823>
+<courses> - <6757>
+<october> - <6535>
+<contact> - <6486>
+<profiles> - <6195>
+<learning> - <6076>
+<faculty> - <6030>
+<irvine> - <5998>
+<process> - <5863>
+<computing> - <5824>
+<systems> - <5706>
+<alumni> - <5690>
+<books> - <5653>
+<application> - <5633>
+
+Subdomains: 
+http://acoi.ics.uci.edu, 34
+http://aiclub.ics.uci.edu, 2
+http://asterix.ics.uci.edu, 8
+http://cbcl.ics.uci.edu, 6
+http://cert.ics.uci.edu, 5
+http://chenli.ics.uci.edu, 10
+http://cloudberry.ics.uci.edu, 2
+http://cml.ics.uci.edu, 107
+http://computableplant.ics.uci.edu, 10
+http://coronavirustwittermap.ics.uci.edu, 1
+http://cyberclub.ics.uci.edu, 2
+http://dejavu.ics.uci.edu, 1
+http://duttgroup.ics.uci.edu, 31
+http://dynamo.ics.uci.edu, 4
+http://emj.ics.uci.edu, 20
+http://evoke.ics.uci.edu, 43
+http://flamingo.ics.uci.edu, 10
+http://fr.ics.uci.edu, 2
+http://futurehealth.ics.uci.edu, 17
+http://graphmod.ics.uci.edu, 1
+http://hai.ics.uci.edu, 4
+http://hana.ics.uci.edu, 1
+http://iasl.ics.uci.edu, 11
+http://ics.uci.edu, 74
+http://informatics.ics.uci.edu, 3
+http://ipf.ics.uci.edu, 1
+http://ipubmed.ics.uci.edu, 1
+http://isg.ics.uci.edu, 11
+http://mailman.ics.uci.edu, 1
+http://mcs.ics.uci.edu, 28
+http://mds.ics.uci.edu, 5
+http://mhcid.ics.uci.edu, 9
+http://mondego.ics.uci.edu, 3
+http://motifmap.ics.uci.edu, 1
+http://mse.ics.uci.edu, 3
+http://mswe.ics.uci.edu, 16
+http://ngs.ics.uci.edu, 575
+http://perennialpolycultures.ics.uci.edu, 1
+http://plrg.ics.uci.edu, 10
+http://radicle.ics.uci.edu, 2
+http://redmiles.ics.uci.edu, 5
+http://riscit.ics.uci.edu, 1
+http://scale.ics.uci.edu, 3
+http://sdcl.ics.uci.edu, 54
+http://sherlock.ics.uci.edu, 4
+http://sli.ics.uci.edu, 8
+http://sourcerer.ics.uci.edu, 1
+http://sprout.ics.uci.edu, 1
+http://statconsulting.ics.uci.edu, 3
+http://swiki.ics.uci.edu, 7
+http://tastier.ics.uci.edu, 1
+http://transformativeplay.ics.uci.edu, 9
+http://vision.ics.uci.edu, 1
+http://wics.ics.uci.edu, 191
+http://www-db.ics.uci.edu, 5
+http://www.ics.uci.edu, 1003
+===============================
