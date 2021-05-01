@@ -355,8 +355,8 @@ def simihash(url, tokens):
             if lenIntersection > 0:
                 similarity = lenIntersection / lenA
 
-                # if url found is more than 95% similar than we dont want it
-                if similarity > 0.95:
+                # if url found is more than 90% similar than we dont want it
+                if similarity > 0.90:
                     return True
 
     return False
